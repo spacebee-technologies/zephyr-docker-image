@@ -29,10 +29,10 @@ RUN pip3 install --user -r /root/zephyrproject/zephyr/scripts/requirements.txt
 # Install Zephyr SDK
 WORKDIR /tmp
 ARG ZEPHYR_SDK_DOWNLOAD_URL=https://github.com/zephyrproject-rtos/sdk-ng/releases/download
-RUN wget $ZEPHYR_SDK_DOWNLOAD_URL/v$ZEPHYR_SDK_VERSION/zephyr-sdk-$ZEPHYR_SDK_VERSION_linux-x86_64.tar.gz
-RUN wget -O - $ZEPHYR_SDK_DOWNLOAD_URL/v$ZEPHYR_SDK_VERSION/sha256.sum | shasum --check --ignore-missing
-RUN tar xvf zephyr-sdk-$ZEPHYR_SDK_VERSION_linux-x86_64.tar.gz -C /root
-WORKDIR /root/zephyr-sdk-$ZEPHYR_SDK_VERSION
+RUN wget "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz"
+RUN wget -O - "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/sha256.sum" | shasum --check --ignore-missing
+RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C /root
+WORKDIR "/root/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
 
 WORKDIR /workspace
