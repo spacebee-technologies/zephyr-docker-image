@@ -23,7 +23,7 @@ jobs:
           push: true
           tags: ghcr.io/spacebee-technologies/zephyr-environment:develop
   build-and-publish-tags:
-    if: ${{ github.ref_type }} == 'tag'
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -42,5 +42,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/spacebee-technologies/zephyr-environment:latest
-                ghcr.io/spacebee-technologies/zephyr-environment:${{ github.ref_name }}
+          tags: |
+            ghcr.io/spacebee-technologies/zephyr-environment:latest
+            ghcr.io/spacebee-technologies/zephyr-environment:${{ github.ref_name }}
