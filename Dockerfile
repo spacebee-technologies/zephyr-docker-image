@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
 
 # Configuration
+ARG ZEPHYR_VERSION=v3.3.0
 ARG ZEPHYR_SDK_VERSION=0.15.1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="${PATH}:/root/.local/bin"
@@ -21,7 +22,7 @@ RUN apt-get install -y --no-install-recommends \
 # Install Zephyr
 WORKDIR /root/zephyrproject
 RUN pip3 install --user -U west
-RUN west init /root/zephyrproject
+RUN west init --mr "${ZEPHYR_VERSION}" /root/zephyrproject
 RUN west update
 RUN west zephyr-export
 RUN pip3 install --user -r /root/zephyrproject/zephyr/scripts/requirements.txt
