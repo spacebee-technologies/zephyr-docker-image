@@ -13,7 +13,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Add CA certificate for registry
         run: |
-          echo "${{ secrets.REGISTRY_CERTIFICATE }}" | base64 -d > ca.crt
+          echo "${{ secrets.REGISTRY_CERTIFICATE }}" > ca.crt
           sudo mkdir -p /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
           sudo cp ca.crt /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
           sudo cp ca.crt /usr/local/share/ca-certificates/
@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:develop
+          tags: registry.spacebeetech.com/rovertito/zephyr-environment:develop
   build-and-publish-tags:
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
