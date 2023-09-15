@@ -13,7 +13,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Add CA certificate for registry
         run: |
-          echo "${{ secrets.REGISTRY_CERTIFICATE }}" > ca.crt
+          echo "${{ secrets.REGISTRY_CERTIFICATE }}" | base64 -d > ca.crt
           sudo mkdir -p /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
           sudo cp ca.crt /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
           sudo cp ca.crt /usr/local/share/ca-certificates/
