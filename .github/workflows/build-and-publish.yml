@@ -8,20 +8,26 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/setup-buildx-action@v3
+      - name: Add CA certificate for registry
+        run: |
+          echo "${{ secrets.REGISTRY_CERTIFICATE }}" > ca.crt
+          sudo mkdir -p /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
+          sudo cp ca.crt /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
+          sudo cp ca.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
+      - name: Login to private registry
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ secrets.REGISTRY_NAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: ghcr.io/spacebee-technologies/zephyr-environment:develop
+        run: |
+          docker build -t ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:develop .
+          docker push ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:develop
   build-and-publish-tags:
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
@@ -29,19 +35,23 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/setup-buildx-action@v3
+      - name: Add CA certificate for registry
+        run: |
+          echo "${{ secrets.REGISTRY_CERTIFICATE }}" > ca.crt
+          sudo mkdir -p /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
+          sudo mv ca.crt /etc/docker/certs.d/${{ secrets.REGISTRY_NAME }}
+      - name: Login to private registry
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ secrets.REGISTRY_NAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: |
-            ghcr.io/spacebee-technologies/zephyr-environment:latest
-            ghcr.io/spacebee-technologies/zephyr-environment:${{ github.ref_name }}
+        run: |
+          docker build -t ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:latest \
+                       -t ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:${{ github.ref_name }} .
+          docker push ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:latest
+          docker push ${{ secrets.REGISTRY_NAME }}/rovertito/zephyr-environment:${{ github.ref_name }}
