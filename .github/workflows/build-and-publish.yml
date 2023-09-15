@@ -25,10 +25,9 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: registry.spacebeetech.com/rovertito/zephyr-environment:develop
+        run: |
+          docker build -t registry.spacebeetech.com/rovertito/zephyr-environment:develop .
+          docker push registry.spacebeetech.com/rovertito/zephyr-environment:develop
   build-and-publish-tags:
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
