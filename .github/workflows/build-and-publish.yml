@@ -14,7 +14,7 @@ jobs:
       - name: Add CA certificate for registry
         run: |
           sudo mkdir -p /etc/docker/certs.d/registry.spacebeetech.com
-          sudo echo "${{ secrets.REGISTRY_CERTIFICATE }}" >> /etc/docker/certs.d/registry.spacebeetech.com/ca.crt
+          sudo echo "${{ secrets.REGISTRY_CERTIFICATE }}" > /etc/docker/certs.d/registry.spacebeetech.com/ca.crt
       - name: Login to private registry
         uses: docker/login-action@v3
         with:
