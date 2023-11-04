@@ -1,11 +1,5 @@
 #!/bin/bash
 
-readonly IMAGE_NAME='zephyr-environment'
+readonly IMAGE_NAME='zephyr-docker-image:local'
 
-docker run \
-  --privileged \
-  --rm \
-  -t \
-  -i \
-  -v /dev:/dev \
-  "${IMAGE_NAME}"
+docker run --privileged --rm -t -i -v /dev:/dev "${IMAGE_NAME}"
