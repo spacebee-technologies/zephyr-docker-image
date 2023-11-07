@@ -1,11 +1,17 @@
 FROM ubuntu:20.04
 
+# Create a non-root user
+RUN useradd -m container-user
+
 # Configuration
 ARG ZEPHYR_VERSION=v3.3.0
 ARG ZEPHYR_SDK_VERSION=0.15.1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="${PATH}:/root/.local/bin"
 ENV ZEPHYR_BASE=/root/zephyrproject/zephyr
+
+# Switch to root for installation
+USER root
 
 # Basic dependencies
 RUN apt-get update && apt-get install -y wget apt-transport-https gpg udev
@@ -35,5 +41,8 @@ RUN wget -O - "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/sha256.sum" | s
 RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C /root
 WORKDIR "/root/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
+
+# Switch back to the non-root user
+USER container-user
 
 WORKDIR /workspace
