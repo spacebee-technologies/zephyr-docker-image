@@ -3,12 +3,17 @@ FROM ubuntu:20.04
 # Configuration
 ARG ZEPHYR_VERSION=v3.3.0
 ARG ZEPHYR_SDK_VERSION=0.15.1
+ARG USERNAME=container-user
+ARG USER_HOME="/home/${USERNAME}"
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="${PATH}:/root/.local/bin"
-ENV ZEPHYR_BASE=/root/zephyrproject/zephyr
+ENV PATH="${PATH}:${USER_HOME}/.local/bin"
+ENV ZEPHYR_BASE="${USER_HOME}/zephyrproject/zephyr"
 
 # Basic dependencies
 RUN apt-get update && apt-get install -y wget apt-transport-https gpg udev
+
+# Create a non-root user
+RUN useradd -m "${USERNAME}"
 
 # Install OS dependencies
 WORKDIR /tmp
@@ -20,20 +25,21 @@ RUN apt-get install -y --no-install-recommends \
         xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
 
 # Install Zephyr
-WORKDIR /root/zephyrproject
-RUN pip3 install --user -U west
-RUN west init --mr "${ZEPHYR_VERSION}" /root/zephyrproject
+USER "${USERNAME}"
+WORKDIR "${USER_HOME}/zephyrproject"
+RUN pip3 install -U west
+RUN west init --mr "${ZEPHYR_VERSION}" "${USER_HOME}/zephyrproject"
 RUN west update
 RUN west zephyr-export
-RUN pip3 install --user -r /root/zephyrproject/zephyr/scripts/requirements.txt
+RUN pip3 install -r "${USER_HOME}/zephyrproject/zephyr/scripts/requirements.txt"
 
 # Install Zephyr SDK
 WORKDIR /tmp
 ARG ZEPHYR_SDK_DOWNLOAD_URL=https://github.com/zephyrproject-rtos/sdk-ng/releases/download
 RUN wget "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz"
 RUN wget -O - "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/sha256.sum" | shasum --check --ignore-missing
-RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C /root
-WORKDIR "/root/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
+RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C "${USER_HOME}"
+WORKDIR "${USER_HOME}/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
 
 WORKDIR /workspace
