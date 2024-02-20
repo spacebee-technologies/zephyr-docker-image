@@ -36,4 +36,7 @@ RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C /root
 WORKDIR "/root/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
 
+# Add workspace to Git safe directories
+RUN git config --global --add safe.directory /workspace
+
 WORKDIR /workspace
