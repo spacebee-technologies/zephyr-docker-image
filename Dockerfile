@@ -1,8 +1,8 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Configuration
-ARG ZEPHYR_VERSION=v3.3.0
-ARG ZEPHYR_SDK_VERSION=0.15.1
+ARG ZEPHYR_VERSION=v3.7.0
+ARG ZEPHYR_SDK_VERSION=0.16.8
 ARG USERNAME=container-user
 ARG USER_HOME="/home/${USERNAME}"
 ENV DEBIAN_FRONTEND=noninteractive
@@ -10,7 +10,7 @@ ENV PATH="${PATH}:${USER_HOME}/.local/bin"
 ENV ZEPHYR_BASE="${USER_HOME}/zephyrproject/zephyr"
 
 # Basic dependencies
-RUN apt-get update && apt-get install -y wget apt-transport-https gpg udev
+RUN apt-get update && apt-get upgrade -y && apt-get install -y wget apt-transport-https gpg udev
 
 # Create a non-root user
 RUN useradd -m "${USERNAME}"
@@ -36,10 +36,13 @@ RUN pip3 install -r "${USER_HOME}/zephyrproject/zephyr/scripts/requirements.txt"
 # Install Zephyr SDK
 WORKDIR /tmp
 ARG ZEPHYR_SDK_DOWNLOAD_URL=https://github.com/zephyrproject-rtos/sdk-ng/releases/download
-RUN wget "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz"
+RUN wget "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
 RUN wget -O - "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/sha256.sum" | shasum --check --ignore-missing
-RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.gz" -C "${USER_HOME}"
+RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz" -C "${USER_HOME}"
 WORKDIR "${USER_HOME}/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
+
+# Add workspace as safe git directory
+RUN git config --global --add safe.directory /workspace
 
 WORKDIR /workspace
