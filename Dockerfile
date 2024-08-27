@@ -3,17 +3,13 @@ FROM ubuntu:22.04
 # Configuration
 ARG ZEPHYR_VERSION=v3.7.0
 ARG ZEPHYR_SDK_VERSION=0.16.8
-ARG USERNAME=container-user
-ARG USER_HOME="/home/${USERNAME}"
+ARG USER_HOME="/root"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="${PATH}:${USER_HOME}/.local/bin"
 ENV ZEPHYR_BASE="${USER_HOME}/zephyrproject/zephyr"
 
 # Basic dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y wget apt-transport-https gpg udev
-
-# Create a non-root user
-RUN useradd -m "${USERNAME}"
 
 # Install OS dependencies
 WORKDIR /tmp
@@ -25,7 +21,6 @@ RUN apt-get install -y --no-install-recommends \
         xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
 
 # Install Zephyr
-USER "${USERNAME}"
 WORKDIR "${USER_HOME}/zephyrproject"
 RUN pip3 install -U west
 RUN west init --mr "${ZEPHYR_VERSION}" "${USER_HOME}/zephyrproject"
