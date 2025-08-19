@@ -1,5 +1,5 @@
 name: Zephyr Docker Image CI
-run-name: Here we build the Docker image used to build our Rovertito application 🚀
+run-name: Here we build the Docker image used to build and develop Zephyr applications
 on: [push]
 jobs:
   build-and-publish-develop:
