@@ -5,7 +5,7 @@ on: [push]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${REGISTRY}/${{ github.repository_owner }}/zephyr-environment
+  IMAGE_NAME: ${{ github.repository_owner }}/zephyr-environment
 
 jobs:
   build-and-push-develop:
@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ env.IMAGE_NAME }}:develop
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
 
   build-and-push-release:
     if: ${{ github.ref_type }} == 'tag'
@@ -48,5 +48,5 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
