@@ -18,7 +18,8 @@ RUN bash kitware-archive.sh
 RUN apt-get install -y --no-install-recommends \
         git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
         python3-dev python3-pip python3-setuptools python3-tk python3-wheel \
-        xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
+        xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 \
+        && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Zephyr
 WORKDIR "${USER_HOME}/zephyrproject"
@@ -34,6 +35,7 @@ ARG ZEPHYR_SDK_DOWNLOAD_URL=https://github.com/zephyrproject-rtos/sdk-ng/release
 RUN wget "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
 RUN wget -O - "${ZEPHYR_SDK_DOWNLOAD_URL}/v${ZEPHYR_SDK_VERSION}/sha256.sum" | shasum --check --ignore-missing
 RUN tar xvf "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz" -C "${USER_HOME}"
+RUN rm "zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-x86_64.tar.xz"
 WORKDIR "${USER_HOME}/zephyr-sdk-${ZEPHYR_SDK_VERSION}"
 RUN ./setup.sh -t all -h -c
 
