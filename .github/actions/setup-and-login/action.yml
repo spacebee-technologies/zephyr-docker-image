@@ -1,0 +1,29 @@
+name: Setup repository and registry
+description: Checks out the repository and logs into container registry
+
+inputs:
+  registry:
+    description: Container registry URL
+    required: true
+  username:
+    description: Username for registry login
+    required: true
+  token:
+    description: Token for registry login
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.token }}
