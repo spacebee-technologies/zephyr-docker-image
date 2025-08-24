@@ -1,7 +1,14 @@
 # zephyr-docker-image
 
 ## Overview
-Repository to define and publish a Docker image for Zephyr application development
+Repository to define build and publish a Docker image for Zephyr application development.
+Contains Zephyr and the Zephyr SDK.
+
+## Basic usage
+Mount you application into `/workspace` directory of the container and then
+you can build your application with `west build`. Example:
+1. `docker run --rm -ti -v $(pwd):/workspace ghcr.io/spacebee-technologies/zephyr-environment`
+2. `west build`
 
 ## License
 This software, including all prior releases, is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). You are free to:
