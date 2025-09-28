@@ -42,4 +42,7 @@ RUN ./setup.sh -t all -h -c
 # Add workspace as safe git directory
 RUN git config --global --add safe.directory /workspace
 
+# Install OpenOCD
+RUN apt install openocd -y
+
 WORKDIR /workspace
