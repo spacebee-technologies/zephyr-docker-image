@@ -3,7 +3,11 @@ FROM ubuntu:22.04
 # Configuration
 ARG ZEPHYR_VERSION=v3.7.1
 ARG ZEPHYR_SDK_VERSION=0.16.9
-ARG USER_HOME="/root"
+ARG USERNAME=builder
+ARG USER_UID=1000
+ARG USER_GID=1000
+ARG USER_HOME=/home/${USERNAME}
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="${PATH}:${USER_HOME}/.local/bin"
 ENV ZEPHYR_BASE="${USER_HOME}/zephyrproject/zephyr"
@@ -16,18 +20,27 @@ RUN apt-get update && \
     wget https://apt.kitware.com/kitware-archive.sh && \
     bash kitware-archive.sh && \
     apt-get install -y --no-install-recommends \
+        openocd \
         git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
         python3-dev python3-pip python3-setuptools python3-tk python3-wheel \
         xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
 
+# Create non-root user
+RUN groupadd --gid ${USER_GID} ${USERNAME} && \
+    useradd -m --uid ${USER_UID} --gid ${USER_GID} -s /bin/bash ${USERNAME} && \
+    usermod -aG dialout ${USERNAME}
+
+USER ${USERNAME}
+
 # Install Zephyr
-WORKDIR "${USER_HOME}/zephyrproject"
-RUN pip3 install -U west
+WORKDIR ${USER_HOME}
+RUN pip3 install --user -U west
 RUN west init --mr "${ZEPHYR_VERSION}" "${USER_HOME}/zephyrproject"
+WORKDIR "${USER_HOME}/zephyrproject"
 RUN west update
 RUN west zephyr-export
-RUN pip3 install -r "${USER_HOME}/zephyrproject/zephyr/scripts/requirements.txt"
+RUN pip3 install --user -r "${USER_HOME}/zephyrproject/zephyr/scripts/requirements.txt"
 
 # Install Zephyr SDK
 WORKDIR /tmp
@@ -41,9 +54,5 @@ RUN ./setup.sh -t all -h -c
 
 # Add workspace as safe git directory
 RUN git config --global --add safe.directory /workspace
-
-# Install OpenOCD
-RUN apt-get update
-RUN apt-get install openocd -y
 
 WORKDIR /workspace
